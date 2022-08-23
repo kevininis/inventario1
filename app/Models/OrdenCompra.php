@@ -9,7 +9,7 @@ class OrdenCompra extends Model
 {
     use HasFactory;
 
-    protected $table = "ordenCompra"; // ESPECIFICAR LA TABLA
+    protected $table = "ordencompra"; // ESPECIFICAR LA TABLA
     protected $primaryKey = "OC_IdOrdenCompra"; // ESPECIFICAR LA LLAVE PRIMARIA
 
     public $timestamps = false; // AL NO USAR CREATED_AT Y UPDATED_AT EN BD

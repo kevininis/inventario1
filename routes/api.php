@@ -11,6 +11,7 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\TipoPagoController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\EstadoController;
+use App\Http\Controllers\OrdenCompraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,7 @@ Route::post('/NuevoEstado', [EstadoController::class, 'NuevoEstado']);
 
 Route::middleware('auth:api')->group( function () {
     Route::post('/Logout', [AuthController::class, 'Logout']);
+    Route::post('/User', [AuthController::class, 'User']);
     
     
     // PROVEEDORES
@@ -77,6 +79,9 @@ Route::middleware('auth:api')->group( function () {
     Route::post('/ListarProductos', [ProductosController::class, 'ListarProductos']);
     Route::post('/ModificarProducto', [ProductosController::class, 'ModificarProducto']);
     Route::post('/EliminarProducto', [ProductosController::class, 'EliminarProducto']);
-
+    
+    // COMPRAS
+    Route::post('/NuevaCompra', [OrdenCompraController::class, 'NuevaCompra']);
+    
 });
 
