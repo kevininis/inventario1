@@ -24,14 +24,14 @@ class OrdenCompraController extends Controller
             $Compra->OC_IdTipoPago = $OrdenCompra['TipoPago'];
             $Compra->OC_IdEstado = 1;
             $Compra->OC_IdUser = $request->user()->USER_IdUser; 
-            $Compra->OC_Comentario = $OrdenCompra['Comentario'];
+            $Compra->OC_Comentario = $OrdenCompra['Comentario']; 
 
             if ($Compra->save()) {
                 $IdCompra = $Compra['OC_IdOrdenCompra'];
                 foreach($DetalleCompra as $Detalle) {
                     $IdProducto = $Detalle['PRO_IdProducto'];
                     $Producto = Productos::where('PRO_IdProducto', $IdProducto)->get();
-                    $RestarCantidad = Productos::find($IdProducto);
+                    $SumarCantidad = Productos::find($IdProducto);
                     
                     $DetalleOrdenCompra = New DetalleCompra();
                     $DetalleOrdenCompra->DC_IdOrdenCompra = $IdCompra;
@@ -40,9 +40,9 @@ class OrdenCompraController extends Controller
                         $DetalleOrdenCompra->DC_Cantidad = $Detalle['Cantidad'];
                         $DetalleOrdenCompra->save();
                         
-                        // RESTAMOS DEL STOCK DE PRODUCTOS
-                        $RestarCantidad->PRO_CantidadProducto -= $Detalle['Cantidad'];
-                        $RestarCantidad->save();
+                        // Sumamos DEL STOCK DE PRODUCTOS
+                        $SumarCantidad->PRO_CantidadProducto += $Detalle['Cantidad'];
+                        $SumarCantidad->save();
                     } else {
                         DB::rollback();
                         return response()->json([
@@ -61,9 +61,30 @@ class OrdenCompraController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([
-                'message' => 'Error 3 al crear la compra',
+                'message' => 'Error al crear la compra',
                 'error' => $e
             ], 500);
         }
+    }
+
+    public function ListarCompras (Request $request) {
+        $Compras = OrdenCompra::where('OC_IdOrdenCompra', 'like', "%$request->NumeroOrden%")
+                                ->where('OC_Fecha', 'like', "%$request->FechaOrden%")                        
+                                ->where('OC_IdProveedor', 'like', "%$request->ProveedorOrden%")                        
+                                ->where('OC_IdEstado', 'like', "%$request->EstadoOrden%")                        
+                                ->get();
+
+        return response()->json([
+            'Compras' => $Compras
+        ], 200);
+    }
+
+    public function DetalleCompra (Request $request) {
+        $id = $request->id;
+        $Detalle = DetalleCompra::where('DC_IdOrdenCompra', $id)->with('Producto')->get();
+
+        return response()->json([
+            'Detalle' => $Detalle
+        ], 200);
     }
 }

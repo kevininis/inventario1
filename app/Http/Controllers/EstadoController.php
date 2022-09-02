@@ -19,12 +19,12 @@ class EstadoController extends Controller
 
             DB::commit();
             return response()->json([
-                'message' => 'Tipo de Pago creado correctamente'
+                'message' => 'Estado creado correctamente'
             ], 201);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([
-                'message' => 'Error al crear el Tipo de Pago',
+                'message' => 'Error al crear el Estado',
                 'error'   => $e
             ],500);
         }

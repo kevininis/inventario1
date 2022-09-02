@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('OrdenCompra', function (Blueprint $table) {
-            $table->increments('OC_IdOrdenCompra');
+            $table->increments('OC_IdOrdenCompra'); 
             $table->unsignedInteger('OC_IdProveedor');
             $table->foreign('OC_IdProveedor')->references('PR_IdProveedor')->on('Proveedor');
             $table->date('OC_Fecha');    

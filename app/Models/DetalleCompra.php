@@ -14,4 +14,8 @@ class DetalleCompra extends Model
 
     public $timestamps = false; // AL NO USAR CREATED_AT Y UPDATED_AT EN BD
 
+    public function Producto () {
+        return $this->belongsTo(Productos::class, 'DC_IdProducto', 'PRO_IdProducto');
+    }git r
+
 }

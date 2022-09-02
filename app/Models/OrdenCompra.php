@@ -15,5 +15,4 @@ class OrdenCompra extends Model
     public $timestamps = false; // AL NO USAR CREATED_AT Y UPDATED_AT EN BD
 
 
-   
 }

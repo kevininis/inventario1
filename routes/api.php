@@ -12,6 +12,7 @@ use App\Http\Controllers\TipoPagoController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\EstadoController;
 use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\OrdenVentaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,13 @@ Route::middleware('auth:api')->group( function () {
     
     // COMPRAS
     Route::post('/NuevaCompra', [OrdenCompraController::class, 'NuevaCompra']);
+    Route::post('/ListarCompras', [OrdenCompraController::class, 'ListarCompras']);
+    Route::post('/DetalleCompra', [OrdenCompraController::class, 'DetalleCompra']);
+
+    // VENTAS
+    Route::post('/NuevaVenta', [OrdenVentaController::class, 'NuevaVenta']);
+    Route::post('/ListarVentas', [OrdenVentaController::class, 'ListarVentas']);
+    Route::post('/DetalleVenta', [OrdenVentaController::class, 'DetalleVenta']);
     
 });
 
