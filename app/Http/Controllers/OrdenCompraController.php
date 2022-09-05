@@ -30,27 +30,19 @@ class OrdenCompraController extends Controller
                 $IdCompra = $Compra['OC_IdOrdenCompra'];
                 foreach($DetalleCompra as $Detalle) {
                     $IdProducto = $Detalle['PRO_IdProducto'];
-                    $Producto = Productos::where('PRO_IdProducto', $IdProducto)->get();
-                    $SumarCantidad = Productos::find($IdProducto);
                     
                     $DetalleOrdenCompra = New DetalleCompra();
                     $DetalleOrdenCompra->DC_IdOrdenCompra = $IdCompra;
                     $DetalleOrdenCompra->DC_IdProducto = $IdProducto;
-                    if ($Detalle['Cantidad'] <= $Producto[0]->PRO_CantidadProducto) {
-                        $DetalleOrdenCompra->DC_Cantidad = $Detalle['Cantidad'];
-                        $DetalleOrdenCompra->save();
-                        
-                        // Sumamos DEL STOCK DE PRODUCTOS
-                        $SumarCantidad->PRO_CantidadProducto += $Detalle['Cantidad'];
-                        $SumarCantidad->save();
-                    } else {
-                        DB::rollback();
-                        return response()->json([
-                            'message' => 'Estás queriendo restar más de lo que tienes',
-                            'error' => $e,
-                        ], 500);
-                    }
-                }
+                    
+                    $DetalleOrdenCompra->DC_Cantidad = $Detalle['Cantidad'];
+                    $DetalleOrdenCompra->save();
+                    
+                    // Sumamos DEL STOCK DE PRODUCTOS
+                    $SumarCantidad = Productos::find($Detalle['PRO_IdProducto']);
+                    $SumarCantidad->PRO_CantidadProducto += $Detalle['Cantidad'];
+                    $SumarCantidad->save();
+                } 
             }
 
             DB::commit();
@@ -86,5 +78,115 @@ class OrdenCompraController extends Controller
         return response()->json([
             'Detalle' => $Detalle
         ], 200);
+    }
+
+    public function ModificarCompra (Request $request) {
+        $OrdenCompra = $request->OrdenCompra;
+        $DetalleCompra = $request->Detalle;
+        $Borrados = $request->Borrados;
+        $Nuevos = $request->Nuevos;
+
+
+        try {
+            DB::beginTransaction();
+
+            $Compra = OrdenCompra::find($OrdenCompra['Id']);
+            $Compra->OC_IdProveedor = $OrdenCompra['Proveedor'];
+            $Compra->OC_IdUser = $request->user()->USER_IdUser;
+            $Compra->OC_Comentario = $OrdenCompra['Comentario'];
+            
+            if ($Compra->save()) {
+                if(count($Nuevos) != 0) {
+                    foreach($Nuevos as $Nuevo) {   
+                        $ParaAgregar = New DetalleCompra();
+                        $ParaAgregar->DC_IdOrdenCompra = $OrdenCompra['Id'];
+                        $ParaAgregar->DC_IdProducto = $Nuevo['PRO_IdProducto'];
+                        $ParaAgregar->DC_Cantidad = $Nuevo['Cantidad'];
+                        $ParaAgregar->save();
+
+                        $RestarCantidad = Productos::find($Nuevo['PRO_IdProducto']);
+                        $RestarCantidad->PRO_CantidadProducto -= $Nuevo['Cantidad'];
+                        $RestarCantidad->save();
+                    }
+                }
+                foreach($DetalleCompra as $Detalle) {
+                    if ($Detalle['Id'] != null) {
+                        $IdProducto = $Detalle['PRO_IdProducto'];
+                        $IdDetalleCompra = $Detalle['Id'];
+                        
+                        $Producto = Productos::find($IdProducto);
+
+                        $DetalleOrdenCompra = DetalleCompra::find($IdDetalleCompra);
+                        $DetalleOrdenCompra->DC_IdProducto = $IdProducto;
+                        $DetalleOrdenCompra->DC_Cantidad = $Detalle['Cantidad'];
+                        $DetalleOrdenCompra->save();
+                        
+                        if ($Detalle['Cantidad'] < $DetalleOrdenCompra->DC_Cantidad) {
+                            //RESTAMOS DEL STOK DE PRODUCTOS
+                            $RestarCantidad = Productos::find($Detalle['PRO_IdProducto']);
+                            $RestarCantidad->PRO_CantidadProducto += $Detalle['Cantidad'];
+                            $RestarCantidad->save();
+                        }
+
+                        if ($Detalle['Cantidad'] > $DetalleOrdenCompra->DC_Cantidad) {
+                            // SUMAMOS DEL STOK DE PRODUCTOS
+                            $SumarCantidad = Productos::find($Detalle['PRO_IdProducto']);
+                            $SumarCantidad->PRO_CantidadProducto += $Detalle['Cantidad'];
+                            $SumarCantidad->save();  
+                        }
+                    }
+                }
+                if(count($Borrados) != 0) {
+                    foreach($Borrados as $Borrar) {               
+                        $ParaBorrar = DetalleCompra::find($Borrar['Id']);
+                        $ParaBorrar->delete();
+
+                        $SumarCantidad = Productos::find($Borrar['PRO_IdProducto']);
+                        $SumarCantidad->PRO_CantidadProducto += $Borrar['Cantidad'];
+                        $SumarCantidad->save();
+                    }
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Venta modificada correctamente',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'message' => 'Error al modificar la venta',
+                'error' => $e,
+
+            ], 500);
+        }
+
+    }
+
+    public function EliminarCompra (Request $request) {
+        $Detalles = $request->DetalleCompra;
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($Detalles as $Detalle) {
+                $EliminarDetalle = DetalleCompra::find($Detalle['Id']);
+                $EliminarDetalle->delete();
+            }
+
+            $Eliminar = OrdenCompra::find($request->IdVenta);
+            $Eliminar->delete();
+            
+            DB::commit();
+            return response()->json([
+                'message' => 'Compra eliminada correctamente'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollback();     
+            return response()->json([
+                'message' => 'Error al eliminar la Compra',
+                'error' => $e,
+            ], 500);
+        }
     }
 }

@@ -85,11 +85,15 @@ Route::middleware('auth:api')->group( function () {
     Route::post('/NuevaCompra', [OrdenCompraController::class, 'NuevaCompra']);
     Route::post('/ListarCompras', [OrdenCompraController::class, 'ListarCompras']);
     Route::post('/DetalleCompra', [OrdenCompraController::class, 'DetalleCompra']);
+    Route::post('/ModificarCompra', [OrdenCompraController::class, 'ModificarCompra']);
+    Route::post('/EliminarCompra', [OrdenCompraController::class, 'EliminarCompra']);
 
     // VENTAS
     Route::post('/NuevaVenta', [OrdenVentaController::class, 'NuevaVenta']);
     Route::post('/ListarVentas', [OrdenVentaController::class, 'ListarVentas']);
     Route::post('/DetalleVenta', [OrdenVentaController::class, 'DetalleVenta']);
+    Route::post('/ModificarVenta', [OrdenVentaController::class, 'ModificarVenta']);
+    Route::post('/EliminarVenta', [OrdenVentaController::class, 'EliminarVenta']);
     
 });
 

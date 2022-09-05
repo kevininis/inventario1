@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('OrdenVenta', function (Blueprint $table) {
             $table->increments('OV_IdOrdenVenta');
             $table->unsignedInteger('OV_IdCliente');
-            $table->foreign('OV_IdCliente')->references('CL_IdCLiente')->on('Cliente');
+            $table->foreign('OV_IdCliente')->references('CL_IdCLiente')->on('Cliente')->constrained('Cliente')->onDelete('cascade');
             $table->date('OC_Fecha');    
             $table->time('OC_Hora');
             $table->unsignedInteger('OV_IdTipoPago');

@@ -101,7 +101,7 @@ class ProductosController extends Controller
                 'message' => 'Producto eliminado correctamente'
             ], 200);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::rollback(); 
             return response()->json([
                 'message' => 'Error al eliminar el Producto',
                 'error' => $e,

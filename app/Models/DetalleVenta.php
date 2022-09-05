@@ -10,7 +10,7 @@ class DetalleVenta extends Model
     use HasFactory;
 
     protected $table = "detalleventa"; // ESPECIFICAR LA TABLA
-    protected $primaryKey = "DV_IdDetalleVenta"; // ESPECIFICAR LA LLAVE PRIMARIA
+    protected $primaryKey = "DV_DetalleVenta"; // ESPECIFICAR LA LLAVE PRIMARIA
 
     public $timestamps = false; // AL NO USAR CREATED_AT Y UPDATED_AT EN BD
 

@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('DetalleCompra', function (Blueprint $table) {
             $table->increments('DC_IdDetalleCompra');
             $table->unsignedInteger('DC_IdOrdenCompra');
-            $table->foreign('DC_IdOrdenCompra')->references('OC_IdOrdenCompra')->on('OrdenCompra');
+            $table->foreign('DC_IdOrdenCompra')->references('OC_IdOrdenCompra')->on('OrdenCompra')->constrained('OrdenCompra')->onDelete('cascade');
             $table->unsignedInteger('DC_IdProducto');
-            $table->foreign('DC_IdProducto')->references('PRO_IdProducto')->on('Producto');
+            $table->foreign('DC_IdProducto')->references('PRO_IdProducto')->on('Producto')->constrained('Producto')->onDelete('cascade');
             $table->integer('DC_Cantidad');
         });
     }
